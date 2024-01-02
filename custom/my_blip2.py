@@ -49,9 +49,10 @@ class Blip2Wrapper(nn.Module):
         self.model.eval()
         self.model.config.text_config.min_length = 5
         self.model.config.text_config.max_length = 40
-        #self.model.config.text_config.do_sample = True
-        #self.model.config.text_config.top_p = 0.9
-        #self.model.config.text_config.repetition_penality = 1.1
+        
+        self.model.config.text_config.do_sample = True
+        self.model.config.text_config.top_k = 50
+        self.model.config.text_config.temperature = 1.0
         print(f'instantiated {self.name} on {device}')
 
     def forward(self, x):

@@ -15,6 +15,7 @@ class Blip2ScoreWrapper(nn.Module):
     name = 'blip2'
     raw_inputs = ['image', 'text']
     preprocessors = ['blip2-score-pre', 'blip2-score-pre']
+    #preprocessors = ['clip-aug', 'clip-tokens']
     dependencies = []
     to_device = True
 
@@ -29,18 +30,19 @@ class Blip2ScoreWrapper(nn.Module):
         #    transforms.ToPILImage()
         #])
         itm_scores, itc_scores = [], []
-        for x, t in zip(xs, ts):
+        print(len(xs))
+        #for x, t in zip(xs, ts):
             
-            img = self.vis_processors["eval"](x).unsqueeze(0).to(self.device)
-            txt = self.text_processors["eval"](t)
+        img = self.vis_processors["eval"](xs)#.to(self.device)#.unsqueeze(0).to(self.device)
+        txt = self.text_processors["eval"](ts)
+        
+        itm_output = self.model({"image": img, "text_input": txt}, match_head="itm")
+        itm_score = torch.nn.functional.softmax(itm_output, dim=1)[:, 1].item()
 
-            itm_output = self.model({"image": img, "text_input": txt}, match_head="itm")
-            itm_score = torch.nn.functional.softmax(itm_output, dim=1)[:, 1].item()
+        itc_score = self.model({"image": img, "text_input": txt}, match_head='itc')
 
-            itc_score = self.model({"image": img, "text_input": txt}, match_head='itc')
-
-            itm_scores.append(itm_score)
-            itc_scores.append(itc_score)
+        itm_scores.append(itm_score)
+        itc_scores.append(itc_score)
 
         return itm_scores, itc_scores
 

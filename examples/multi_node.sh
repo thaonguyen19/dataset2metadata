@@ -1,17 +1,21 @@
 #!/bin/bash
 
-#SBATCH --partition=g40
+#SBATCH --partition=g40x
 #SBATCH --job-name=dataset2metadata
-#SBATCH --output=logs/%x_%j.out
+#SBATCH --output=logs2/%x_%j.out
 #SBATCH --open-mode=append
-#SBATCH --comment=datanet
+#SBATCH --account=datanet
 #SBATCH --ntasks=1
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --cpus-per-gpu=12
-#SBATCH --mem 100G
-#SBATCH --array=1-640%64
+#SBATCH --mem 150G
+#SBATCH --array=468,629,335,690,334,621,500,442,948,507,941,696,999,314,992,154,818,610,281,770,593,841,555,264,413,771,524,878,978,220,752,248,547,259,551,846,962,200,186,886,676,738,891,369,735,645,648,377,720,843,556,262,414,783,303,769,576,318,993,155,816,600,918,702,950,520,333,622,504,480,628,341,373,722,371,638,708,737,889,195,252,553,850,959,198,243,548,523,876,979,753,224,355,636,904,650,390,725,654,881,685,719,409,684,709,856,210,967,868,179,971,765,529,236,740,240,531,215,273,768,440,177,575,559,267,791,419,836,798,159,994,835,451,952,910,634,350,486,342,321,455,613,751,239,540,214,525,757,238,864,184,976,691,759,859,209,964,683,714,892,671,882,688,718,392,652,380,726,365,728,635,898,319,454,957,498,617,494,345,352,448,166,997,827,998,839,813,560,265,795,428,277,766,437,178,573%80
 #SBATCH --requeue
 
+#LOGS2: 301-999
+
+#ARRAY 0-150: 47,43,50,114,118,29,5,25,74,75,49,44,142,4,42,104,20,133,102,126,85,131,101,140,148,23,19,95,61,79
+#JOBS=9,99,19,45,42,85,61,96,1,20,8,95,62,79,43,44,77,72,49,28,51,25,5,23,50,29,47,74,75,24,4,26
 echo "Processing job $SLURM_ARRAY_TASK_ID.yml"
 
 cd /fsx/home-thaottn/dataset2metadata
@@ -25,8 +29,11 @@ else
     exit 1
 fi
 
-export PATH="/fsx/home-$USER/miniconda3/condabin:$PATH"
-source /fsx/home-$USER/miniconda3/etc/profile.d/conda.sh
+export PATH="/admin/home-$USER/miniconda3/condabin:$PATH"
+source /admin/home-$USER/miniconda3/etc/profile.d/conda.sh
 
-conda activate tng_metadata
-srun dataset2metadata --yml_path examples/jobs/$SLURM_ARRAY_TASK_ID.yml
+conda activate dataset2metadata
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/admin/home-thaottn/miniconda3/envs/dataset2metadata/lib
+srun dataset2metadata --yml examples/jobs_100M_trans_cap/$SLURM_ARRAY_TASK_ID.yml
+
+
