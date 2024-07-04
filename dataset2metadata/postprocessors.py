@@ -17,3 +17,9 @@ def identity(cache: Dict, model: str, to_cpu: bool=True):
 
 def transpose_list(cache: Dict, model: str):
     return list(map(list, zip(*cache[model])))
+
+def batched_dot_product_index(
+    cache: Dict, model: str, i: int, j: int, to_cpu: bool = True):
+    return _cpu_helper(
+        torch.einsum("bn,bn->b", cache[model][i], cache[model][j]), to_cpu
+    )
